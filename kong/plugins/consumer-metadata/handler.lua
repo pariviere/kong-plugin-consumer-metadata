@@ -13,7 +13,7 @@
 
 
 local plugin = {
-  PRIORITY = 1000, -- set the plugin priority, which determines plugin execution order
+  a = 974, -- set the plugin priority, which determines plugin execution order
   VERSION = "0.1",
 }
 
@@ -30,7 +30,7 @@ local plugin = {
 function plugin:init_worker()
 
   -- your custom code here
-  kong.log.debug("saying hi from the 'init_worker' handler")
+  kong.log.debug("loading 'consumer-metadata' plugin")
 
 end --]]
 
@@ -64,12 +64,19 @@ function plugin:access(plugin_conf)
 
   -- your custom code here
   kong.log.inspect(plugin_conf)   -- check the logs for a pretty-printed config!
-  ngx.req.set_header(plugin_conf.request_header, "this is on a request")
+  --ngx.req.set_header(plugin_conf.request_header, "this is on a request")
+  for key, values in pairs(plugin_conf.headers) do
+
+    for _, value in pairs(values) do
+      kong.log.debug('setting "' .. key .. '" request header to "' .. value .. '"')
+      ngx.req.set_header(key, value)
+    end
+  end
 
 end --]]
 
 
----[[ runs in the 'header_filter_by_lua_block'
+--[[ runs in the 'header_filter_by_lua_block'
 function plugin:header_filter(plugin_conf)
 
   -- your custom code here, for example;
